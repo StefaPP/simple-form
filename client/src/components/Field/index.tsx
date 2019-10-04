@@ -1,16 +1,13 @@
 import React, { PureComponent } from "react";
-
-type TInputType = "text" | "checkbox";
-
-interface IFieldProps {
-  label: string;
-  id: string;
-  type?: TInputType;
-  value?: string;
-  checked?: boolean;
-}
+import { IFieldProps } from "./types";
+import { FormContext } from "../Form/context";
+import { IErrors } from "../Form/types";
 
 class Field extends React.PureComponent<IFieldProps> {
+  public static contextType = FormContext;
+
+  private getError = (errors: IErrors): string =>
+    errors && errors[this.props.id] ? errors[this.props.id].message : "";
 
   private handleOnChange = (e: React.FormEvent<HTMLInputElement>) => {
     const { type, id } = this.props;
@@ -25,6 +22,7 @@ class Field extends React.PureComponent<IFieldProps> {
   };
 
   public render() {
+    const { errors } = this.context;
     const { id, label, type = "text", ...value } = this.props;
     return (
       <div className="form-group">
@@ -35,8 +33,15 @@ class Field extends React.PureComponent<IFieldProps> {
           onChange={this.handleOnChange}
           onBlur={this.handleOnBlur}
           {...value}
-        ></input>
+        />
+        {this.getError(errors) && (
+          <div style={{ color: "red", fontSize: "80%" }}>
+            <p>{this.getError(errors)}</p>
+          </div>
+        )}
       </div>
     );
   }
 }
+
+export { Field };
